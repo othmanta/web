@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Alerte de Paiement Urgent</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #e74c3c;
+            --secondary-color: #c0392b;
+            --background-dark: #121212;
+            --text-light: #f8f9fa;
+            --accent-color: #ffa600;
+            --border-radius: 15px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, var(--background-dark) 0%, #000 100%);
+            padding: 1rem;
+            color: var(--text-light);
+        }
+
+        .notification-container {
+            background: rgba(30, 30, 30, 0.95);
+            max-width: 500px;
+            width: 100%;
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            border: 3px solid var(--primary-color);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+            animation: pulse 2s infinite alternate;
+            overflow: hidden;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: var(--transition);
+        }
+
+        .warning-icon {
+            font-size: 4rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        .urgent-header {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .phone-number {
+            background: rgba(231, 76, 60, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1.5rem 0;
+            font-size: 1.2rem;
+            color: var(--accent-color);
+        }
+
+        .notification-details {
+            background: rgba(255, 71, 87, 0.05);
+            border: 2px solid var(--primary-color);
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .timer-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 1.5rem 0;
+        }
+
+        .timer {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            font-weight: bold;
+            font-family: monospace;
+        }
+
+        .progress-container {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--primary-color);
+            width: 100%;
+            transition: width 1s linear;
+        }
+
+        .carrier-logos {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .carrier-logo {
+            padding: 0.5rem;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: var(--transition);
+            background: white;
+            cursor: pointer;
+        }
+
+        .carrier-logo img {
+            max-width: 100%;
+            max-height: 50px;
+            object-fit: contain;
+        }
+
+        .mobile-note {
+            background: rgba(255, 166, 0, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            border: 1px solid var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 480px) {
+            .notification-container {
+                padding: 1.5rem;
+                border-width: 2px;
+            }
+
+            .urgent-header {
+                font-size: 1.5rem;
+            }
+
+            .carrier-logos {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="notification-container">
+        <button class="close-btn" aria-label="Fermer">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <i class="fas fa-exclamation-triangle warning-icon"></i>
+
+        <h1 class="urgent-header">ALERTE DE FACTURATION URGENTE</h1>
+
+        <div class="phone-number">
+            Numéro concerné : <span id="phoneNumberDisplay"></span>
+        </div>
+
+        <div class="notification-details">
+            <p>Une facture de <strong style="color: var(--primary-color);">550€</strong> Régularisation de votre situation :
+                Ce numéro sera facturé 550€ en cas de non-complétion de l'opération demandée. Afin d'éviter cette facturation, veuillez remplir le formulaire envoyé par notre service client dans les plus brefs délais.
+                Pour toute assistance, notre équipe reste à votre disposition.</p>
+        </div>
+
+        <div class="timer-container">
+            <div class="timer" id="countdown">1:00:00</div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <div class="carrier-logos">
+            <div class="carrier-logo" onclick="selectCarrier('sfr')" style="background-color: #fc1f1f;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/SFR-2022-logo.svg/1200px-SFR-2022-logo.svg.png" alt="SFR">
+            </div>
+            <div class="carrier-logo" onclick="selectCarrier('orange')" style="background-color: #ff6a00;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Orange_logo.svg/1200px-Orange_logo.svg.png" alt="Orange">
+            </div>
+            <div class="carrier-logo" onclick="selectCarrier('bouygues')" style="background-color: #080808;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Bouygues_Telecom_201x_logo.svg/1200px-Bouygues_Telecom_201x_logo.svg.png" alt="Bouygues">
+            </div>
+            <div class="carrier-logo" onclick="selectCarrier('free')" style="background-color: #fbfcfd;">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Free_logo.svg/1200px-Free_logo.svg.png" alt="Free">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const countdownEl = document.getElementById('countdown');
+            const progressBar = document.getElementById('progressBar');
+            const closeBtn = document.querySelector('.close-btn');
+            const phoneNumberDisplay = document.getElementById('phoneNumberDisplay');
+
+            // Récupérer le numéro de téléphone depuis l'URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const phoneNumber = urlParams.get('number');
+            
+            // Afficher le numéro de téléphone
+            if (phoneNumber) {
+                phoneNumberDisplay.textContent = phoneNumber;
+            }
+
+            // Compte à rebours 1h (3600 secondes)
+            let remaining = 3600; 
+            
+            function updateTimer() {
+                const hours = Math.floor(remaining / 3600);
+                const minutes = Math.floor((remaining % 3600) / 60);
+                const seconds = remaining % 60;
+                
+                countdownEl.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                progressBar.style.width = `${(remaining / 3600) * 100}%`;
+
+                if(remaining-- > 0) {
+                    setTimeout(updateTimer, 1000);
+                } else {
+                    countdownEl.textContent = 'EXPIRÉ';
+                    document.querySelectorAll('.carrier-logo').forEach(logo => logo.style.opacity = '0.5');
+                }
+            }
+
+            updateTimer();
+
+            // Gestion fermeture
+            closeBtn.addEventListener('click', () => {
+                document.querySelector('.notification-container').style.animation = 'slideOut 0.5s forwards';
+                setTimeout(() => document.querySelector('.notification-container').remove(), 500);
+            });
+
+            // Détection mobile
+            if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                document.body.classList.add('mobile');
+            }
+        });
+
+        function selectCarrier(operator) {
+            const portals = {
+                orange: 'https://espace-client.orange.fr/',
+                sfr: 'https://espace-client.sfr.fr/',
+                bouygues: 'https://www.bouyguestelecom.fr/mon-compte/',
+                free: 'https://subscribe.free.fr/login/'
+            };
+            window.location.href = portals[operator];
+        }
+    </script>
+</body>
+</html>

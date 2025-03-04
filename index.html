@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vérification Requise</title>
+    <style>
+        :root {
+            --primary-color: #075e54;
+            --secondary-color: #128c7e;
+            --background: #f0f2f5;
+            --text-dark: #3b4a54;
+            --error-color: #dc3545;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: var(--background);
+            padding: 2rem;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        .header {
+            margin-bottom: 2rem;
+            color: var(--primary-color);
+            font-size: 1.8rem;
+        }
+        .country-selector {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .phone-input-wrapper {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        .phone-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.1rem;
+        }
+        .phone-input.error {
+            border-color: var(--error-color);
+        }
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.9rem;
+            text-align: left;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        .error-message.visible {
+            display: block;
+        }
+        .continue-btn {
+            background: var(--secondary-color);
+            color: white;
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+        .continue-btn:hover {
+            opacity: 0.9;
+        }
+        .continue-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="header">Entrez votre numéro</h1>
+        
+        <div class="country-selector">
+            <span>France (+33)</span>
+        </div>
+        <div class="phone-input-wrapper">
+            <input 
+                type="tel" 
+                class="phone-input" 
+                id="phoneInput" 
+                placeholder="Numéro de téléphone" 
+                maxlength="9" 
+                pattern="\d{9}" 
+                required 
+                aria-describedby="phoneError"
+            >
+            <div id="phoneError" class="error-message">
+                Veuillez entrer un numéro valide (9 chiffres)
+            </div>
+        </div>
+        <button 
+            class="continue-btn" 
+            id="continueButton" 
+            onclick="verifyNumber()" 
+            disabled
+        >
+            Continuer
+        </button>
+    </div>
+    <script>
+        const phoneInput = document.getElementById('phoneInput');
+        const continueButton = document.getElementById('continueButton');
+        const errorMessage = document.getElementById('phoneError');
+
+        phoneInput.addEventListener('input', function() {
+            // Remove non-digit characters
+            this.value = this.value.replace(/\D/g, '');
+            
+            // Validate input
+            const isValid = this.value.length === 9;
+            
+            // Toggle error state and button
+            this.classList.toggle('error', !isValid);
+            errorMessage.classList.toggle('visible', !isValid);
+            continueButton.disabled = !isValid;
+        });
+
+        function verifyNumber() {
+            const number = phoneInput.value.replace(/\D/g,'');
+            
+            if(number.length !== 9) {
+                phoneInput.classList.add('error');
+                errorMessage.classList.add('visible');
+                return;
+            }
+            
+            // Prevent potential XSS by sanitizing the input
+            const sanitizedNumber = encodeURIComponent('+33' + number);
+            window.location.href = `warning.html?number=${sanitizedNumber}`;
+        }
+    </script>
+</body>
+</html>
